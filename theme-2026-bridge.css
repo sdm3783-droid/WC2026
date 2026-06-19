@@ -319,7 +319,9 @@ body > * {
   }
 
   body::after {
-    display: none;
+    opacity: 0.13;
+    background-size: 160%;
+    background-position: center 10%;
   }
 
   .sidebar {
