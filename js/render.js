@@ -1071,14 +1071,16 @@ function boostBets(round){
   ];
 }
 function selectBoostMult(mult){
-  document.querySelectorAll('.boost-mult-btn').forEach(b=>{
-    b.classList.toggle('selected',parseInt(b.dataset.mult)===mult);
-  });
+  const steps=Array.from(document.querySelectorAll('.boost-slider-step'));
+  steps.forEach(s=>s.classList.toggle('selected',parseInt(s.dataset.mult)===mult));
+  const idx=steps.findIndex(s=>parseInt(s.dataset.mult)===mult);
+  const fill=document.getElementById('boost-slider-fill');
+  if(fill&&steps.length>1) fill.style.width=`${idx/(steps.length-1)*100}%`;
   updateBoostPreview();
 }
 function _selectedMult(){
-  const btn=document.querySelector('.boost-mult-btn.selected');
-  return btn?parseInt(btn.dataset.mult):1;
+  const step=document.querySelector('.boost-slider-step.selected');
+  return step?parseInt(step.dataset.mult):1;
 }
 function updateBoostPreview(){
   const inp=document.getElementById('boost-amount-inp');
@@ -1144,7 +1146,7 @@ function openKOPred(id){
     const existingBet=MY_BETS[kk];
     const avail=availableCoins();
     const _bets=boostBets(ko.r);
-    const multBtns=_bets.map(b=>`<button class="boost-mult-btn${b.mult===maxMult?' selected':''}" data-mult="${b.mult}" onclick="selectBoostMult(${b.mult})"><span class="boost-mult-label">${b.label}</span><span class="boost-mult-x">×${b.mult}</span></button>`).join('');
+    const multBtns=`<div class="boost-slider"><div class="boost-slider-track"><div class="boost-slider-fill" id="boost-slider-fill" style="width:100%"></div><div class="boost-slider-steps">${_bets.map(b=>`<div class="boost-slider-step${b.mult===maxMult?' selected':''}" data-mult="${b.mult}" onclick="selectBoostMult(${b.mult})"><div class="boost-slider-dot"></div><div class="boost-slider-step-label">${b.label}</div><div class="boost-slider-step-x">×${b.mult}</div></div>`).join('')}</div></div></div>`;
     if(existingBet&&!existingBet.settled){
       const betTeam=existingBet.val==='h'?hName:aName;
       const bm=existingBet.multiplier||maxMult;
@@ -1161,7 +1163,7 @@ function openKOPred(id){
       boostHTML=`<div class="boost-section">
         <div class="boost-sec-title">⚡ BOOST 배팅 <span style="color:#94a3b8;font-size:.8rem">최대 ×${maxMult}</span></div>
         <div class="boost-avail">보유 코인 🪙<b>${avail}</b></div>
-        <div class="boost-mult-row">${multBtns}</div>
+        ${multBtns}
         <div class="boost-input-row">
           <input type="number" id="boost-amount-inp" class="boost-amount-inp" min="1" max="${avail}" placeholder="배팅 금액" oninput="updateBoostPreview()">
           <span class="boost-inp-suffix">코인</span>
