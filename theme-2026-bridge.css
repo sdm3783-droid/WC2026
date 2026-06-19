@@ -321,7 +321,7 @@ body > * {
   body::after {
     opacity: 0.18;
     background-size: 170%;
-    background-position: center top;
+    background-position: center 30%;
     mask-image: none;
   }
 
