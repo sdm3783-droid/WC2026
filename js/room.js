@@ -761,14 +761,14 @@ function calcBadges(nick, preds){
   // 조별 마스터
   const grpDone=Object.keys(GROUPS).filter(g=>preds[`grp-${g}-1`]&&preds[`grp-${g}-2`]);
   if(grpDone.length>=12) badges.push({icon:'🧠',label:'조별 마스터',cls:'badge-purple'});
-  // 스코어 킬러
+  // 스코어 킬러 (정확 적중 1회부터 표시)
   let scoreHits=0;
   MATCHES.forEach(m=>{
     const sp=preds['s-'+predKey(m)];
     if(sp&&m.score){const[ph,pa]=sp.split('-').map(Number);if(ph===m.score[0]&&pa===m.score[1])scoreHits++;}
   });
-  if(scoreHits>=3) badges.push({icon:'⚽',label:`스코어 ${scoreHits}회`,cls:'badge-green'});
-  // 연속 적중
+  if(scoreHits>=1) badges.push({icon:'⚽',label:`스코어 ${scoreHits}회`,cls:'badge-green'});
+  // 연속 적중 — streak: 현재 진행 중인 연속, maxStreak: 역대 최고 연속
   let maxStreak=0,streak=0;
   const _isPast=m=>new Date(m.kst).getTime()+2*3600000<Date.now();
   MATCHES.filter(m=>_isPast(m)).sort((a,b)=>new Date(a.kst)-new Date(b.kst)).forEach(m=>{
@@ -776,8 +776,16 @@ function calcBadges(nick, preds){
     if(!preds[k]){streak=0;return;}
     if(matchResult(m)===preds[k]){streak++;maxStreak=Math.max(maxStreak,streak);}else streak=0;
   });
-  if(maxStreak>=5) badges.push({icon:'🔥',label:`${maxStreak}연속 적중`,cls:'badge-fire'});
-  else if(maxStreak>=3) badges.push({icon:'✨',label:`${maxStreak}연속 적중`,cls:'badge-yellow'});
+  // streak===maxStreak 이면 최고 기록이 '현재 진행 중' → 반짝이는 이펙트 유지, 아니면 끊긴 상태 → '최대' 표기 + 정적 배지
+  if(maxStreak>=3){
+    if(streak===maxStreak){
+      badges.push(maxStreak>=5
+        ?{icon:'🔥',label:`${maxStreak}연속 적중`,cls:'badge-fire'}
+        :{icon:'✨',label:`${maxStreak}연속 적중`,cls:'badge-yellow'});
+    }else{
+      badges.push({icon:'🎯',label:`최대 ${maxStreak}연속 적중`,cls:'badge-dim'});
+    }
+  }
   // 우승 예측 성공
   const champW=getChampionWinner();
   if(champW&&preds['champion']===champW) badges.push({icon:'🏆',label:'우승 예측 성공',cls:'badge-gold'});
