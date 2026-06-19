@@ -214,6 +214,10 @@ scheduleDeadlineRefresh();
 if(ROOM_CODE){listenRoom(ROOM_CODE);startHeartbeat();}
 fetchScores().then(scheduleNextFetch);
 setTimeout(()=>{ isBoostOpen() ? showBoostAnnouncePopup() : showAnnouncePopup(); }, 800);
+window.addEventListener('pagehide',()=>{
+  sessionStorage.removeItem('wc2026-boost-announce-v1');
+  sessionStorage.removeItem('wc2026-announce-v4');
+});
 
 if('serviceWorker' in navigator){
   let refreshing=false;
