@@ -1073,6 +1073,7 @@ function boostBets(round){
 function selectBoostMult(mult){
   const steps=Array.from(document.querySelectorAll('.boost-slider-step'));
   steps.forEach(s=>s.classList.toggle('selected',parseInt(s.dataset.mult)===mult));
+  document.querySelectorAll('.boost-slider-step-info').forEach(s=>s.classList.toggle('selected',parseInt(s.dataset.mult)===mult));
   const idx=steps.findIndex(s=>parseInt(s.dataset.mult)===mult);
   const fill=document.getElementById('boost-slider-fill');
   if(fill&&steps.length>1) fill.style.width=`${idx/(steps.length-1)*100}%`;
@@ -1146,7 +1147,7 @@ function openKOPred(id){
     const existingBet=MY_BETS[kk];
     const avail=availableCoins();
     const _bets=boostBets(ko.r);
-    const multBtns=`<div class="boost-slider"><div class="boost-slider-track"><div class="boost-slider-fill" id="boost-slider-fill" style="width:100%"></div><div class="boost-slider-steps">${_bets.map(b=>`<div class="boost-slider-step${b.mult===maxMult?' selected':''}" data-mult="${b.mult}" onclick="selectBoostMult(${b.mult})"><div class="boost-slider-dot"></div><div class="boost-slider-step-label">${b.label}</div><div class="boost-slider-step-x">×${b.mult}</div></div>`).join('')}</div></div></div>`;
+    const multBtns=`<div class="boost-slider"><div class="boost-slider-track"><div class="boost-slider-fill" id="boost-slider-fill" style="width:100%"></div><div class="boost-slider-steps">${_bets.map(b=>`<div class="boost-slider-step${b.mult===maxMult?' selected':''}" data-mult="${b.mult}" onclick="selectBoostMult(${b.mult})"><div class="boost-slider-dot"></div></div>`).join('')}</div></div><div class="boost-slider-labels">${_bets.map(b=>`<div class="boost-slider-step-info${b.mult===maxMult?' selected':''}" data-mult="${b.mult}"><div class="boost-slider-step-label">${b.label}</div><div class="boost-slider-step-x">×${b.mult}</div></div>`).join('')}</div></div>`;
     if(existingBet&&!existingBet.settled){
       const betTeam=existingBet.val==='h'?hName:aName;
       const bm=existingBet.multiplier||maxMult;
