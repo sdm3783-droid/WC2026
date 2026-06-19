@@ -319,9 +319,10 @@ body > * {
   }
 
   body::after {
-    opacity: 0.13;
-    background-size: 160%;
-    background-position: center 10%;
+    opacity: 0.18;
+    background-size: 170%;
+    background-position: center top;
+    mask-image: none;
   }
 
   .sidebar {
