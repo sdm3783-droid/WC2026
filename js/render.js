@@ -1051,6 +1051,25 @@ function renderBracket(R){
 
 /* ── 토너먼트 예측 모달 ── */
 /* ── BOOST 배팅 UI 헬퍼 ── */
+function boostBets(round){
+  if(round==='32강') return [
+    {label:'Safe Bet',mult:1},
+    {label:'Risk Bet',mult:2},
+    {label:'High Risk',mult:3}
+  ];
+  if(round==='16강') return [
+    {label:'Safe Bet',mult:1},
+    {label:'Risk Bet',mult:2},
+    {label:'High Risk',mult:3},
+    {label:'All-in',mult:5}
+  ];
+  return [
+    {label:'Safe Bet',mult:1},
+    {label:'Risk Bet',mult:3},
+    {label:'High Risk',mult:5},
+    {label:'Extreme',mult:10}
+  ];
+}
 function selectBoostMult(mult){
   document.querySelectorAll('.boost-mult-btn').forEach(b=>{
     b.classList.toggle('selected',parseInt(b.dataset.mult)===mult);
@@ -1124,7 +1143,8 @@ function openKOPred(id){
     const maxMult=boostMultiplier(ko.r);
     const existingBet=MY_BETS[kk];
     const avail=availableCoins();
-    const multBtns=Array.from({length:maxMult},(_,i)=>i+1).map(m=>`<button class="boost-mult-btn${m===maxMult?' selected':''}" data-mult="${m}" onclick="selectBoostMult(${m})">×${m}</button>`).join('');
+    const _bets=boostBets(ko.r);
+    const multBtns=_bets.map(b=>`<button class="boost-mult-btn${b.mult===maxMult?' selected':''}" data-mult="${b.mult}" onclick="selectBoostMult(${b.mult})"><span class="boost-mult-label">${b.label}</span><span class="boost-mult-x">×${b.mult}</span></button>`).join('');
     if(existingBet&&!existingBet.settled){
       const betTeam=existingBet.val==='h'?hName:aName;
       const bm=existingBet.multiplier||maxMult;
