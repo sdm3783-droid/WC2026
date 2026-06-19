@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WC2026 관리자 대시보드</title>
+<style>
+:root{--bg:#050b13;--ink:#f4f7fb;--dim:#8d9aaa;--border:rgba(255,255,255,.09);--gold:#e3b341;--green:#31c981;--red:#ef4444;--blue:#3b82f6;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif;min-height:100vh;padding:24px 16px}
+h1{font-size:1.3rem;font-weight:900;color:var(--gold);margin-bottom:4px}
+.sub{font-size:.78rem;color:var(--dim);margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.card{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.card-num{font-size:2rem;font-weight:900;line-height:1}
+.card-num.gold{color:var(--gold)}
+.card-num.green{color:var(--green)}
+.card-num.blue{color:#60a5fa}
+.card-label{font-size:.72rem;color:var(--dim);margin-top:4px}
+.section{margin-bottom:28px}
+.section-title{font-size:.82rem;font-weight:700;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:360px}
+th{text-align:left;padding:8px 10px;font-size:.7rem;font-weight:700;color:var(--dim);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--ink)}
+tr:hover td{background:rgba(255,255,255,.03)}
+.badge{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:99px}
+.badge-gold{background:rgba(227,179,65,.2);color:var(--gold);border:1px solid rgba(227,179,65,.35)}
+.badge-green{background:rgba(49,201,129,.12);color:var(--green);border:1px solid rgba(49,201,129,.25)}
+.badge-blue{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
+.login-wrap{max-width:360px;margin:80px auto;text-align:center}
+.login-title{font-size:1.4rem;font-weight:900;color:var(--gold);margin-bottom:8px}
+.login-sub{font-size:.8rem;color:var(--dim);margin-bottom:24px}
+.login-input{width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--ink);font-size:.95rem;outline:none;margin-bottom:12px}
+.login-input:focus{border-color:rgba(227,179,65,.5)}
+.login-btn{width:100%;padding:12px;background:linear-gradient(90deg,#d97706,#f59e0b);border:none;border-radius:10px;color:#1a0f00;font-size:.95rem;font-weight:900;cursor:pointer}
+.login-btn:hover{opacity:.88}
+.login-err{color:var(--red);font-size:.78rem;min-height:18px;margin-bottom:8px}
+.loading{text-align:center;padding:40px;color:var(--dim);font-size:.85rem}
+.refresh-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--dim);font-size:.75rem;padding:6px 14px;border-radius:8px;cursor:pointer;margin-left:auto;display:block;margin-bottom:16px}
+.refresh-btn:hover{background:rgba(255,255,255,.12);color:var(--ink)}
+.chat-row{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+.chat-nick{font-size:.72rem;font-weight:700;color:var(--gold)}
+.chat-msg-text{font-size:.8rem;color:var(--ink)}
+.chat-ts{font-size:.65rem;color:var(--dim)}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-title">🔐 관리자 대시보드</div>
+    <div class="login-sub">WC2026 운영자 전용 페이지</div>
+    <input class="login-input" type="password" id="pw-input" placeholder="관리자 비밀번호"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="login-err"></div>
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+  </div>
+</div>
+
+<div id="dashboard" style="display:none">
+  <h1>⚙️ WC2026 관리자 대시보드</h1>
+  <div class="sub" id="last-refresh">불러오는 중...</div>
+  <button class="refresh-btn" onclick="loadAll()">🔄 새로고침</button>
+
+  <div class="section">
+    <div class="section-title">📊 전체 현황</div>
+    <div class="grid" id="stats-grid"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏆 코인 랭킹 TOP 10</div>
+    <div class="table-wrap">
+      <table id="ranking-table">
+        <thead><tr><th>#</th><th>닉네임</th><th>코인</th><th>예측수</th><th>배지</th></tr></thead>
+        <tbody id="ranking-body"><tr><td colspan="5" class="loading">불러오는 중...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📈 한국전 예측 현황</div>
+    <div class="table-wrap">
+      <table id="kor-table">
+        <thead><tr><th>경기</th><th>홈승</th><th>무</th><th>원정승</th><th>총 예측</th></tr></thead>
+        <tbody id="kor-body"><tr><td colspan="5" class="loading">불러오는 중...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💬 최근 채팅 (20개)</div>
+    <div id="chat-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script>
+const ADMIN_PW='wc2026@admin';
+const FB_CONFIG={apiKey:"AIzaSyC93mYiLYMrF-5IsIzfYnlGQdnK0sdPEfE",authDomain:"ske-0004.firebaseapp.com",projectId:"ske-0004",storageBucket:"ske-0004.firebasestorage.app",messagingSenderId:"704127486318",appId:"1:704127486318:web:3b8c2c5562978231d3597f"};
+let db=null;
+function getDb(){if(!db){firebase.initializeApp(FB_CONFIG);db=firebase.firestore();}return db;}
+
+function doLogin(){
+  const pw=document.getElementById('pw-input').value;
+  if(pw===ADMIN_PW){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('dashboard').style.display='';
+    loadAll();
+  }else{
+    document.getElementById('login-err').textContent='비밀번호가 틀렸습니다.';
+  }
+}
+
+async function loadAll(){
+  document.getElementById('last-refresh').textContent='불러오는 중...';
+  const db=getDb();
+  const GLOBAL='GLOBAL';
+  const [membersSnap,predsSnap,chatSnap]=await Promise.all([
+    db.collection('wc2026_rooms').doc(GLOBAL).collection('members').get(),
+    db.collection('wc2026_rooms').doc(GLOBAL).collection('predictions').get(),
+    db.collection('wc2026_rooms').doc(GLOBAL).collection('chat').orderBy('ts','desc').limit(20).get()
+  ]);
+
+  const members=membersSnap.docs.map(d=>d.id);
+  const preds={};
+  predsSnap.forEach(d=>{preds[d.id]=d.data();});
+
+  // 전체 현황 계산
+  let totalPreds=0,totalCoins=0,totalScorePreds=0;
+  const ranking=[];
+  members.forEach(nick=>{
+    const p=preds[nick]||{};
+    let correct=0,total=0;
+    Object.entries(p).forEach(([k,v])=>{
+      if(k.startsWith('s-')){totalScorePreds++;return;}
+      if(k.startsWith('bet-')||k.startsWith('grp-')||k==='champion')return;
+      const m=MATCHES.find(x=>`${x.home}-${x.away}`===k);
+      if(m){totalPreds++;total++;if(m.score){const r=m.score[0]>m.score[1]?'h':m.score[0]<m.score[1]?'a':'d';if(r===v)correct++;}}
+    });
+    // 조 예측
+    const grpPreds={};
+    Object.entries(p).forEach(([k,v])=>{const m=k.match(/^grp-([A-L])-([12])$/);if(!m)return;const[,g,rank]=m;if(!grpPreds[g])grpPreds[g]={};if(rank==='1')grpPreds[g].p1=v;else grpPreds[g].p2=v;});
+    // 간단 coin sum
+    totalCoins+=correct;
+    ranking.push({nick,correct,total});
+  });
+  ranking.sort((a,b)=>b.correct-a.correct||b.total-a.total);
+
+  // 통계 카드
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="card"><div class="card-num blue">${members.length}</div><div class="card-label">총 참여자</div></div>
+    <div class="card"><div class="card-num gold">${totalCoins}</div><div class="card-label">누적 코인 (예측 적중합산)</div></div>
+    <div class="card"><div class="card-num green">${totalPreds}</div><div class="card-label">총 예측 건수</div></div>
+    <div class="card"><div class="card-num" style="color:#a5b4fc">${totalScorePreds}</div><div class="card-label">스코어 예측 건수</div></div>
+  `;
+
+  // 랭킹 TOP 10
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('ranking-body').innerHTML=ranking.slice(0,10).map((r,i)=>`
+    <tr>
+      <td>${i<3?medals[i]:i+1}</td>
+      <td><b>${r.nick}</b></td>
+      <td><span class="badge badge-gold">🪙 ${r.correct}</span></td>
+      <td>${r.total}</td>
+      <td>${i===0&&r.correct>0?'<span class="badge badge-gold">💎 코인왕</span>':''}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px">데이터 없음</td></tr>';
+
+  // 한국전 예측 현황
+  const korMs=MATCHES.filter(m=>m.home==='kor'||m.away==='kor');
+  document.getElementById('kor-body').innerHTML=korMs.map(m=>{
+    const k=`${m.home}-${m.away}`;
+    let h=0,d=0,a=0;
+    Object.values(preds).forEach(p=>{if(p[k]==='h')h++;else if(p[k]==='d')d++;else if(p[k]==='a')a++;});
+    const total=h+d+a;
+    const hn=TEAMS[m.home]?.name||m.home;
+    const an=TEAMS[m.away]?.name||m.away;
+    return`<tr>
+      <td>${hn} vs ${an}</td>
+      <td>${h}${total>0?`<span style="color:var(--dim);font-size:.68rem"> (${Math.round(h/total*100)}%)</span>`:''}</td>
+      <td>${d}${total>0?`<span style="color:var(--dim);font-size:.68rem"> (${Math.round(d/total*100)}%)</span>`:''}</td>
+      <td>${a}${total>0?`<span style="color:var(--dim);font-size:.68rem"> (${Math.round(a/total*100)}%)</span>`:''}</td>
+      <td><span class="badge badge-blue">${total}명</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px">데이터 없음</td></tr>';
+
+  // 최근 채팅
+  const chatItems=chatSnap.docs.map(d=>{
+    const data=d.data();
+    const ts=data.ts?.toDate();
+    const timeStr=ts?`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`:'';
+    return`<div class="chat-row">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="chat-nick">${data.nick||'?'}</span>
+        <span class="chat-ts">${timeStr}</span>
+      </div>
+      <div class="chat-msg-text">${(data.msg||'').replace(/</g,'&lt;')}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('chat-list').innerHTML=chatItems||'<div class="loading">채팅 내역 없음</div>';
+
+  document.getElementById('last-refresh').textContent=`마지막 업데이트: ${new Date().toLocaleString('ko-KR')}`;
+}
+
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>

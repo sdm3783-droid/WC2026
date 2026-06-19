@@ -1,0 +1,476 @@
+/* ════════════════════════════════════════════════════════════════
+   WC2026 예측방 — 2026 리디자인 테마 (단일 파일, 드롭인용)
+   이 파일 하나만 <link> 하면 모든 토큰 + 폰트가 로드됩니다.
+   원본은 styles.css + tokens/ 에 분리되어 있고, 이건 그 합본입니다.
+
+   ▶ 레거시 변수 브리지는 이 파일 맨 아래에 있습니다.
+     기존 앱이 쓰던 --gold / --dim / --bg 등을 새 팔레트로 자동 매핑.
+   ════════════════════════════════════════════════════════════════ */
+
+
+/* ───── tokens/fonts.css ───── */
+/* ───────────────────────────────────────────────────────────
+   FONTS — WC2026 예측방
+   Pretendard (modern Korean UI sans) as the single typeface.
+   Display weight (800/900) replaces the old "Black Han Sans".
+   Hosted from jsDelivr CDN. To self-host, drop the woff2 into
+   assets/fonts/ and repoint the src() below.
+   ─────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 45 920;            /* variable weight axis */
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2") format("woff2-variations");
+}
+
+/* Latin numeric / mono accent for scoreboards & coin counters.
+   JetBrains-style tabular figures keep score columns aligned. */
+@font-face {
+  font-family: "WC Mono";
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono@v2.304/fonts/webfonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+
+/* ───── tokens/colors.css ───── */
+/* ───────────────────────────────────────────────────────────
+   COLOR PRIMITIVES — WC2026 예측방
+   Raw, theme-agnostic palette. Never reference these directly in
+   components — use the semantic tokens in themes.css instead.
+   Identity anchors: Indigo = brand, Gold = coin/reward economy.
+   ─────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Brand · Electric Indigo (primary) ───────────────────── */
+  --indigo-50:  #eef0ff;
+  --indigo-100: #e0e1fe;
+  --indigo-200: #c5c5fc;
+  --indigo-300: #a6a2f8;
+  --indigo-400: #847cf4;
+  --indigo-500: #635bf0;   /* primary brand */
+  --indigo-600: #4f46db;
+  --indigo-700: #4039b2;
+  --indigo-800: #302b85;
+  --indigo-900: #211d58;
+
+  /* ── Gold · the coin / trophy economy (heritage accent) ──── */
+  --gold-100: #fef3c7;
+  --gold-200: #fde68a;
+  --gold-300: #fcd34d;
+  --gold-400: #fbbf24;   /* coin face */
+  --gold-500: #f59e0b;
+  --gold-600: #d97706;
+  --gold-700: #b45309;
+
+  /* ── Pitch Green · win / correct / live-success ──────────── */
+  --green-300: #86efac;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+
+  /* ── Red · miss / fail / LIVE pulse ──────────────────────── */
+  --red-300: #fca5a5;
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-glow: #fb3b4e;
+
+  /* ── Sky · info / links / TV badges ──────────────────────── */
+  --sky-300: #7dd3fc;
+  --sky-400: #38bdf8;
+  --sky-500: #0ea5e9;
+
+  /* ── Violet · AI challenge accent ────────────────────────── */
+  --violet-300: #c4b5fd;
+  --violet-400: #a78bfa;
+  --violet-500: #8b5cf6;
+
+  /* ── Neutral "Ink" ramp (cool blue-grey) ─────────────────── */
+  --ink-0:   #ffffff;
+  --ink-25:  #f8f9fb;
+  --ink-50:  #f1f3f7;
+  --ink-100: #e6e9f0;
+  --ink-200: #d0d5e0;
+  --ink-300: #aab2c4;
+  --ink-400: #8590a6;
+  --ink-500: #647088;
+  --ink-600: #4a546a;
+  --ink-700: #353d50;
+  --ink-800: #222836;
+  --ink-850: #1a1f2b;
+  --ink-900: #141822;
+  --ink-950: #0b0e16;   /* deepest dark bg */
+
+  /* ── Brand gradient (used sparingly: hero, CTA, coin shine) ─ */
+  --grad-brand: linear-gradient(135deg, #635bf0 0%, #8b5cf6 100%);
+  --grad-coin:  linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+  --grad-live:  linear-gradient(135deg, #fb3b4e 0%, #f97316 100%);
+}
+
+/* ───── tokens/themes.css ───── */
+/* ───────────────────────────────────────────────────────────
+   THEME SEMANTIC TOKENS — WC2026 예측방
+   Dark is the default (the app is a live, late-night sports
+   companion). Light theme opts in via [data-theme="light"].
+   Components reference ONLY these --c-* / --text-* tokens.
+   ─────────────────────────────────────────────────────────── */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* surfaces */
+  --c-bg:            var(--ink-950);
+  --c-bg-grad:       radial-gradient(120% 80% at 50% -10%, #1a1e3a 0%, var(--ink-950) 55%);
+  --c-surface:       var(--ink-900);
+  --c-surface-2:     var(--ink-850);
+  --c-surface-3:     var(--ink-800);
+  --c-surface-inset: rgba(255, 255, 255, 0.04);
+  --c-overlay:       rgba(6, 8, 14, 0.72);
+
+  /* text */
+  --text-strong:  #f4f6fb;
+  --text-body:    #dbe0ea;
+  --text-dim:     #8590a6;
+  --text-faint:   #5a6478;
+  --text-on-brand:#ffffff;
+  --text-on-gold: #2a1a02;
+
+  /* lines */
+  --c-border:        rgba(255, 255, 255, 0.09);
+  --c-border-strong: rgba(255, 255, 255, 0.16);
+  --c-divider:       rgba(255, 255, 255, 0.06);
+
+  /* brand */
+  --c-brand:        var(--indigo-500);
+  --c-brand-hover:  var(--indigo-400);
+  --c-brand-press:  var(--indigo-600);
+  --c-brand-soft:   rgba(99, 91, 240, 0.16);
+  --c-brand-ring:   rgba(99, 91, 240, 0.45);
+  --c-on-brand:     #ffffff;
+
+  /* coin / reward */
+  --c-coin:       var(--gold-400);
+  --c-coin-soft:  rgba(251, 191, 36, 0.14);
+  --c-coin-text:  var(--gold-300);
+
+  /* semantic */
+  --c-win:        var(--green-400);
+  --c-win-soft:   rgba(74, 222, 128, 0.14);
+  --c-lose:       var(--red-400);
+  --c-lose-soft:  rgba(248, 113, 113, 0.13);
+  --c-live:       var(--red-glow);
+  --c-live-soft:  rgba(251, 59, 78, 0.16);
+  --c-info:       var(--sky-400);
+  --c-info-soft:  rgba(56, 189, 248, 0.14);
+  --c-ai:         var(--violet-400);
+  --c-ai-soft:    rgba(167, 139, 250, 0.15);
+
+  /* KR highlight (대한민국 rows) */
+  --c-kr:         var(--gold-300);
+  --c-kr-soft:    rgba(252, 211, 77, 0.10);
+
+  --c-field-bg:   var(--ink-850);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --c-bg:            var(--ink-25);
+  --c-bg-grad:       radial-gradient(120% 80% at 50% -10%, #e9ebff 0%, var(--ink-25) 55%);
+  --c-surface:       var(--ink-0);
+  --c-surface-2:     var(--ink-25);
+  --c-surface-3:     var(--ink-50);
+  --c-surface-inset: rgba(15, 20, 35, 0.03);
+  --c-overlay:       rgba(20, 24, 34, 0.40);
+
+  --text-strong:  #0e1320;
+  --text-body:    #2b3344;
+  --text-dim:     #647088;
+  --text-faint:   #95a0b4;
+  --text-on-brand:#ffffff;
+  --text-on-gold: #3a2600;
+
+  --c-border:        rgba(15, 22, 40, 0.10);
+  --c-border-strong: rgba(15, 22, 40, 0.18);
+  --c-divider:       rgba(15, 22, 40, 0.07);
+
+  --c-brand:        var(--indigo-500);
+  --c-brand-hover:  var(--indigo-600);
+  --c-brand-press:  var(--indigo-700);
+  --c-brand-soft:   rgba(99, 91, 240, 0.10);
+  --c-brand-ring:   rgba(99, 91, 240, 0.35);
+  --c-on-brand:     #ffffff;
+
+  --c-coin:       var(--gold-500);
+  --c-coin-soft:  rgba(245, 158, 11, 0.12);
+  --c-coin-text:  var(--gold-600);
+
+  --c-win:        var(--green-600);
+  --c-win-soft:   rgba(34, 197, 94, 0.12);
+  --c-lose:       var(--red-500);
+  --c-lose-soft:  rgba(239, 68, 68, 0.10);
+  --c-live:       var(--red-glow);
+  --c-live-soft:  rgba(251, 59, 78, 0.12);
+  --c-info:       var(--sky-500);
+  --c-info-soft:  rgba(14, 165, 233, 0.12);
+  --c-ai:         var(--violet-500);
+  --c-ai-soft:    rgba(139, 92, 246, 0.12);
+
+  --c-kr:         var(--gold-600);
+  --c-kr-soft:    rgba(217, 119, 6, 0.09);
+
+  --c-field-bg:   var(--ink-50);
+}
+
+/* ───── tokens/typography.css ───── */
+/* ───────────────────────────────────────────────────────────
+   TYPOGRAPHY TOKENS — WC2026 예측방
+   One family (Pretendard) carries UI + display via weight.
+   "WC Mono" is reserved for scores / coin counters (tabular).
+   ─────────────────────────────────────────────────────────── */
+
+:root {
+  /* families */
+  --font-sans:    "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+                  "Malgun Gothic", system-ui, sans-serif;
+  --font-display: "Pretendard", -apple-system, "Apple SD Gothic Neo", sans-serif;
+  --font-mono:    "WC Mono", ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+
+  /* weights */
+  --fw-regular:  450;
+  --fw-medium:   550;
+  --fw-semibold: 650;
+  --fw-bold:     750;
+  --fw-display:  840;
+
+  /* type scale (mobile-first product UI) */
+  --fs-display:  2.25rem;  /* 36 — hero countdown / big score */
+  --fs-h1:       1.625rem; /* 26 — page title */
+  --fs-h2:       1.25rem;  /* 20 — section title */
+  --fs-h3:       1.0625rem;/* 17 — card title */
+  --fs-body:     0.9375rem;/* 15 — body */
+  --fs-sm:       0.8125rem;/* 13 — meta / labels */
+  --fs-xs:       0.6875rem;/* 11 — micro badges */
+
+  /* line-heights */
+  --lh-tight:   1.1;
+  --lh-snug:    1.3;
+  --lh-normal:  1.55;
+
+  /* tracking */
+  --ls-tight:   -0.02em;
+  --ls-snug:    -0.01em;
+  --ls-normal:  0;
+  --ls-wide:    0.04em;
+  --ls-caps:    0.08em;
+
+  /* semantic roles */
+  --type-display: var(--fw-display) var(--fs-display)/var(--lh-tight) var(--font-display);
+  --type-h1:      var(--fw-display) var(--fs-h1)/var(--lh-tight) var(--font-display);
+  --type-h2:      var(--fw-bold) var(--fs-h2)/var(--lh-snug) var(--font-sans);
+  --type-h3:      var(--fw-semibold) var(--fs-h3)/var(--lh-snug) var(--font-sans);
+  --type-body:    var(--fw-regular) var(--fs-body)/var(--lh-normal) var(--font-sans);
+  --type-label:   var(--fw-semibold) var(--fs-sm)/var(--lh-snug) var(--font-sans);
+}
+
+/* ───── tokens/spacing.css ───── */
+/* ───────────────────────────────────────────────────────────
+   SPACING & LAYOUT TOKENS — WC2026 예측방
+   4px base grid. Mobile product → app shell is 430px max.
+   ─────────────────────────────────────────────────────────── */
+
+:root {
+  --sp-0:   0;
+  --sp-1:   0.25rem;  /* 4  */
+  --sp-2:   0.5rem;   /* 8  */
+  --sp-3:   0.75rem;  /* 12 */
+  --sp-4:   1rem;     /* 16 */
+  --sp-5:   1.25rem;  /* 20 */
+  --sp-6:   1.5rem;   /* 24 */
+  --sp-8:   2rem;     /* 32 */
+  --sp-10:  2.5rem;   /* 40 */
+  --sp-12:  3rem;     /* 48 */
+  --sp-16:  4rem;     /* 64 */
+
+  /* app shell */
+  --shell-max:    430px;
+  --shell-pad:    1rem;
+  --nav-h:        60px;
+  --header-h:     56px;
+
+  /* radii */
+  --r-xs:    6px;
+  --r-sm:    9px;
+  --r-md:    13px;   /* default card radius */
+  --r-lg:    18px;
+  --r-xl:    24px;
+  --r-pill:  999px;
+
+  /* touch */
+  --touch-min: 44px;
+}
+
+/* ───── tokens/effects.css ───── */
+/* ───────────────────────────────────────────────────────────
+   EFFECTS — shadows, rings, motion. WC2026 예측방
+   Soft, low-spread elevation. Brand-tinted glow on hero/coins.
+   ─────────────────────────────────────────────────────────── */
+
+:root {
+  /* elevation (dark-tuned; light theme overrides below) */
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-md:  0 4px 14px rgba(0, 0, 0, 0.34);
+  --shadow-lg:  0 14px 40px rgba(0, 0, 0, 0.46);
+  --shadow-pop: 0 18px 50px rgba(0, 0, 0, 0.55);
+
+  /* glows for emphasis (coins, live, CTA) */
+  --glow-brand: 0 6px 22px rgba(99, 91, 240, 0.42);
+  --glow-coin:  0 4px 16px rgba(245, 158, 11, 0.40);
+  --glow-live:  0 0 0 4px rgba(251, 59, 78, 0.18);
+
+  /* focus ring */
+  --ring: 0 0 0 3px var(--c-brand-ring);
+
+  /* motion */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:   120ms;
+  --dur-base:   200ms;
+  --dur-slow:   320ms;
+}
+
+[data-theme="light"] {
+  --shadow-sm:  0 1px 2px rgba(20, 24, 40, 0.06);
+  --shadow-md:  0 6px 18px rgba(28, 34, 58, 0.10);
+  --shadow-lg:  0 16px 42px rgba(28, 34, 58, 0.14);
+  --shadow-pop: 0 20px 52px rgba(28, 34, 58, 0.20);
+  --glow-brand: 0 8px 24px rgba(99, 91, 240, 0.26);
+  --glow-coin:  0 6px 18px rgba(245, 158, 11, 0.28);
+}
+
+@keyframes wc-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@keyframes wc-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes wc-pop {
+  0%   { transform: scale(0.9); opacity: 0; }
+  60%  { transform: scale(1.03); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes wc-shine {
+  from { background-position: -120% 0; }
+  to   { background-position: 220% 0; }
+}
+
+/* ───── tokens/base.css ───── */
+/* ───────────────────────────────────────────────────────────
+   BASE — resets + global element defaults. WC2026 예측방
+   ─────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font: var(--type-body);
+  color: var(--text-body);
+  background: var(--c-bg);
+  letter-spacing: var(--ls-snug);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3, h4 { margin: 0; color: var(--text-strong); }
+p { margin: 0; }
+
+a { color: var(--c-info); text-decoration: none; }
+
+button { font-family: inherit; }
+
+::selection { background: var(--c-brand-soft); color: var(--text-strong); }
+
+/* tabular figures helper for scoreboards / coin counters */
+.wc-tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* thin custom scrollbar inside scroll regions */
+.wc-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.wc-scroll::-webkit-scrollbar-thumb {
+  background: var(--c-border-strong); border-radius: 999px;
+}
+.wc-scroll::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   레거시 변수 브리지 (LEGACY VARIABLE BRIDGE)
+   ----------------------------------------------------------------
+   기존 앱의 CSS가 쓰던 변수 이름을 새 토큰으로 다시 연결합니다.
+   이렇게 하면 render.js / 기존 CSS를 거의 안 고치고도 룩이 바뀝니다.
+
+   ⚠️ 클로드 코드에게: 실제 index.html(또는 기존 CSS)의 :root 를 열어
+      쓰이는 변수 이름을 확인하고, 아래 목록을 그 이름에 맞게 보정하세요.
+      여기 있는 이름(--gold, --dim, --bg ...)은 코드에서 관찰된 추정치입니다.
+
+   ★ 가장 중요한 구조 변경 한 가지:
+     기존 앱은 --gold 하나를 "버튼 액션"과 "코인" 양쪽에 다 썼습니다.
+     리디자인은 이 둘을 분리합니다 →  액션 = 인디고(--c-brand),
+     코인/보상/트로피 = 골드(--c-coin).
+     단순 변수 매핑으로는 이 분리가 안 되므로, 버튼·CTA·선택 상태의
+     색은 --c-brand 로 직접 바꾸고, 코인/리워드 표시에만 --c-coin(골드)을
+     남겨두세요. 자세한 건 handoff/CLAUDE_CODE.md 참고.
+   ════════════════════════════════════════════════════════════════ */
+
+:root,
+[data-theme="dark"] {
+  /* 배경·표면 */
+  --bg:        var(--c-bg);
+  --bg-2:      var(--c-surface);
+  --card:      var(--c-surface);
+  --surface:   var(--c-surface-2);
+
+  /* 텍스트 */
+  --fg:        var(--text-strong);
+  --text:      var(--text-body);
+  --dim:       var(--text-dim);
+  --faint:     var(--text-faint);
+
+  /* 라인 */
+  --border:    var(--c-border);
+  --divider:   var(--c-divider);
+
+  /* 액센트 — 기존 --gold 를 둘로 나눕니다 */
+  --gold:      var(--c-coin);     /* 코인/보상용으로만 남겨두세요 */
+  --accent:    var(--c-brand);    /* 버튼·CTA·선택 상태는 이걸로 */
+
+  /* 시맨틱 */
+  --green:     var(--c-win);
+  --red:       var(--c-lose);
+  --live:      var(--c-live);
+  --info:      var(--c-info);
+
+  /* 모서리 (기존 값이 있으면 덮어씀) */
+  --radius:    var(--r-md);
+}
+
+[data-theme="light"] {
+  /* 라이트 테마는 위 새 토큰들이 자동으로 재매핑되므로,
+     레거시 변수도 light 값을 따라갑니다. 추가 작업 불필요. */
+}
