@@ -1051,18 +1051,30 @@ function renderBracket(R){
 
 /* ── 토너먼트 예측 모달 ── */
 /* ── BOOST 배팅 UI 헬퍼 ── */
-function updateBoostPreview(multiplier){
+function selectBoostMult(mult){
+  document.querySelectorAll('.boost-mult-btn').forEach(b=>{
+    b.classList.toggle('selected',parseInt(b.dataset.mult)===mult);
+  });
+  updateBoostPreview();
+}
+function _selectedMult(){
+  const btn=document.querySelector('.boost-mult-btn.selected');
+  return btn?parseInt(btn.dataset.mult):1;
+}
+function updateBoostPreview(){
   const inp=document.getElementById('boost-amount-inp');
   const prev=document.getElementById('boost-preview');
   if(!inp||!prev)return;
   const amount=parseInt(inp.value)||0;
+  const multiplier=_selectedMult();
   if(amount<=0){prev.innerHTML='';return;}
   prev.innerHTML=`적중 → <span style="color:#4ade80;font-weight:700">+${amount*multiplier}🪙</span> &nbsp;·&nbsp; 실패 → <span style="color:var(--red);font-weight:700">-${amount}🪙</span>`;
 }
-async function confirmBoost(koId,multiplier,maxCoins,matchId){
+async function confirmBoost(koId,maxCoins,matchId){
   const inp=document.getElementById('boost-amount-inp');
   if(!inp)return;
   const amount=parseInt(inp.value);
+  const multiplier=_selectedMult();
   if(!amount||amount<1){alert('배팅 금액을 입력해주세요.');return;}
   if(amount>maxCoins){alert(`보유 코인(${maxCoins})보다 많이 배팅할 수 없어요.`);return;}
   const myPred=PREDS[koId];
@@ -1109,35 +1121,38 @@ function openKOPred(id){
   // BOOST 배팅 섹션
   let boostHTML='';
   if(boostOpen&&ROOM_CODE&&ROOM_NICK){
-    const multiplier=boostMultiplier(ko.r);
+    const maxMult=boostMultiplier(ko.r);
     const existingBet=MY_BETS[kk];
     const avail=availableCoins();
+    const multBtns=Array.from({length:maxMult},(_,i)=>i+1).map(m=>`<button class="boost-mult-btn${m===maxMult?' selected':''}" data-mult="${m}" onclick="selectBoostMult(${m})">×${m}</button>`).join('');
     if(existingBet&&!existingBet.settled){
       const betTeam=existingBet.val==='h'?hName:aName;
+      const bm=existingBet.multiplier||maxMult;
       boostHTML=`<div class="boost-section">
-        <div class="boost-sec-title">⚡ BOOST 배팅 <span class="boost-badge boost-x${multiplier}">×${multiplier}</span></div>
+        <div class="boost-sec-title">⚡ BOOST 배팅 <span class="boost-badge boost-x${bm}">×${bm}</span></div>
         <div class="boost-current-row">
           <span class="boost-current-team">${betTeam} 승</span>
           <span class="boost-current-amount">${existingBet.amount}코인 배팅</span>
-          <span class="boost-expected">적중 시 +${existingBet.amount*multiplier}🪙</span>
+          <span class="boost-expected">적중 시 +${existingBet.amount*bm}🪙</span>
         </div>
         <button class="boost-cancel-btn" onclick="deleteBet('${ek}').then(()=>{renderBracket(R);openKOPred(${id})})">배팅 취소</button>
       </div>`;
     }else if(myPred){
       boostHTML=`<div class="boost-section">
-        <div class="boost-sec-title">⚡ BOOST 배팅 <span class="boost-badge boost-x${multiplier}">×${multiplier}</span></div>
+        <div class="boost-sec-title">⚡ BOOST 배팅 <span style="color:#94a3b8;font-size:.8rem">최대 ×${maxMult}</span></div>
         <div class="boost-avail">보유 코인 🪙<b>${avail}</b></div>
+        <div class="boost-mult-row">${multBtns}</div>
         <div class="boost-input-row">
-          <input type="number" id="boost-amount-inp" class="boost-amount-inp" min="1" max="${avail}" placeholder="배팅 금액" oninput="updateBoostPreview(${multiplier})">
+          <input type="number" id="boost-amount-inp" class="boost-amount-inp" min="1" max="${avail}" placeholder="배팅 금액" oninput="updateBoostPreview()">
           <span class="boost-inp-suffix">코인</span>
         </div>
         <div id="boost-preview" class="boost-preview"></div>
-        <button class="boost-confirm-btn" onclick="confirmBoost('${ek}',${multiplier},${avail},${id})">⚡ 배팅 확정</button>
+        <button class="boost-confirm-btn" onclick="confirmBoost('${ek}',${avail},${id})">⚡ 배팅 확정</button>
         <div class="boost-hint">배팅 없이 예측만 해도 됩니다</div>
       </div>`;
     }else{
       boostHTML=`<div class="boost-section boost-pending">
-        <div class="boost-sec-title">⚡ BOOST 배팅 <span class="boost-badge boost-x${multiplier}">×${multiplier}</span></div>
+        <div class="boost-sec-title">⚡ BOOST 배팅 <span style="color:#94a3b8;font-size:.8rem">최대 ×${maxMult}</span></div>
         <div class="boost-hint">팀을 예측한 뒤 배팅할 수 있어요</div>
       </div>`;
     }
