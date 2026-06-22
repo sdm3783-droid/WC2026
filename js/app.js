@@ -211,7 +211,7 @@ rerender();
 (()=>{const el=document.getElementById('nav-date-icon');if(el)el.textContent=new Date().getDate();})();
 showPage('next-wrap');
 scheduleDeadlineRefresh();
-if(ROOM_CODE){listenRoom(ROOM_CODE);startHeartbeat();}
+if(ROOM_CODE){listenRoom(ROOM_CODE);startHeartbeat();ensureMemberDoc();}
 fetchScores().then(scheduleNextFetch);
 setTimeout(()=>{ isBoostOpen() ? showBoostAnnouncePopup() : showAnnouncePopup(); }, 800);
 window.addEventListener('pagehide',()=>{

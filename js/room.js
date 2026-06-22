@@ -276,6 +276,15 @@ function startHeartbeat(){
       .update({lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
   },5*60*1000);
 }
+async function ensureMemberDoc(){
+  if(!ROOM_CODE||!ROOM_NICK)return;
+  const ref=getDb().collection('wc2026_rooms').doc(GLOBAL_ROOM).collection('members').doc(ROOM_NICK);
+  const snap=await ref.get().catch(()=>null);
+  if(snap&&!snap.exists){
+    const now=firebase.firestore.FieldValue.serverTimestamp();
+    ref.set({joinedAt:now,lastSeen:now}).catch(()=>{});
+  }
+}
 async function cleanupStaleMembers(){
   const cutoff=new Date(Date.now()-45*24*60*60*1000); // 45일 (월드컵 기간)
   const snap=await getDb().collection('wc2026_rooms').doc(GLOBAL_ROOM).collection('members').get().catch(()=>null);
@@ -501,6 +510,42 @@ function calcRoomRanking(){
     .map(([nick,s])=>({nick,...s}));
 }
 
+const RANK_SNAP_KEY='wc2026-rank-snap';
+function getFinishedMatchCount(){return(window.MATCHES||[]).filter(m=>m.score).length;}
+function updateRankSnap(ranking){
+  const mc=getFinishedMatchCount();
+  const ranked=ranking.map((r,i)=>({nick:r.nick,pos:i}));
+  try{
+    const s=localStorage.getItem(RANK_SNAP_KEY);
+    if(!s){
+      localStorage.setItem(RANK_SNAP_KEY,JSON.stringify({mc,baseline:ranked,current:ranked}));
+      return null;
+    }
+    const p=JSON.parse(s);
+    if(p.mc<mc){
+      // 새 경기 결과 → 이전 current가 새 baseline
+      localStorage.setItem(RANK_SNAP_KEY,JSON.stringify({mc,baseline:p.current,current:ranked}));
+      return p.current;
+    }
+    // 경기 없음 → baseline 유지, current만 갱신
+    localStorage.setItem(RANK_SNAP_KEY,JSON.stringify({...p,current:ranked}));
+    return p.baseline;
+  }catch{return null;}
+}
+function getRankChange(nick,prevSnap,currIdx){
+  if(!prevSnap)return null;
+  const prev=prevSnap.find(r=>r.nick===nick);
+  if(!prev)return'new';
+  return prev.pos-currIdx;
+}
+function renderRankChangeBadge(change){
+  if(change===null)return'';
+  if(change==='new')return`<span class="rank-chg rank-chg-new">NEW</span>`;
+  if(change>0)return`<span class="rank-chg rank-chg-up">▲${change}</span>`;
+  if(change<0)return`<span class="rank-chg rank-chg-down">▼${Math.abs(change)}</span>`;
+  return`<span class="rank-chg rank-chg-same">-</span>`;
+}
+
 function renderRoomPanel(){
   const el=document.getElementById('room-panel');
   if(!el)return;
@@ -533,6 +578,7 @@ function renderRoomPanel(){
   const myCoins=myRank?myRank.correct:0;
   const myRankIdx=myRank?ranking.indexOf(myRank):-1;
   const podiumHTML=renderRankPodium(ranking,hasSettled);
+  const prevSnap=updateRankSnap(ranking);
   const rankRows=ranking.map((r,i)=>{
     const isMe=r.nick===ROOM_NICK;
     const num=i<3?`<span class="room-rank-num">${medals[i]}</span>`:`<span class="room-rank-num" style="color:var(--dim)">${i+1}</span>`;
@@ -546,9 +592,11 @@ function renderRoomPanel(){
     const badges=calcBadges(r.nick,nickPreds);
     const mainBadge=badges[0];
     const subBadges=badges.slice(1);
+    const chg=hasSettled?getRankChange(r.nick,prevSnap,i):null;
+    const chgBadge=renderRankChangeBadge(chg);
     return`<div class="rank-item" ${rowClick} ${rowStyle}>
       <div class="room-rank-row${i===0&&r.correct>0?' top1':''}">
-        ${num}<span class="room-rank-nick${isMe?' me':''}"><span class="room-rank-name">${r.nick}${isMe?' (나)':''}</span>${mainBadge?renderMainBadge(mainBadge):''}</span>${crown}
+        ${num}${chgBadge}<span class="room-rank-nick${isMe?' me':''}"><span class="room-rank-name">${r.nick}${isMe?' (나)':''}</span>${mainBadge?renderMainBadge(mainBadge):''}</span>${crown}
         <span class="room-rank-coin"><span class="coin-num ${coinColor}">${r.correct}</span>&nbsp;🪙<span class="room-rank-sub" style="margin-left:4px">/${r.total}</span></span>
       </div>
       ${subBadges.length?renderBadges(subBadges):''}
@@ -580,6 +628,8 @@ function renderRoomPanel(){
         <button class="room-tab room-tab-chat-new" id="tab-chat" onclick="switchRoomTab('chat')">💬 채팅<span class="room-tab-new-badge">NEW</span></button>
       </div>
       <div id="room-rank-content">
+        <div id="pred-panel" style="display:none"></div>
+        <div class="my-stats-bar"><div id="my-stats-panel" style="display:none"></div></div>
         ${rankingHTML}
         <button class="room-guide-btn" onclick="showRoomGuide()">📖 예측방 시스템 가이드 보기</button>
         <div class="fairness-banner">
@@ -602,6 +652,8 @@ function renderRoomPanel(){
     </div>
   </div>`;
   if(window.twemoji)twemoji.parse(el);
+  renderPredPanel();
+  renderMyStats();
 }
 async function doJoinGlobal(){
   const input=document.getElementById('join-nick-input');
