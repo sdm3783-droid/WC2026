@@ -190,7 +190,16 @@ const KO = [
   {id:104,r:"결승",d:"7/20 04:00",city:"뉴욕",home:{w:101},away:{w:102},score:null}
 ];
 
-const THIRD_ASSIGN = {};
+const THIRD_ASSIGN = {
+  74:'par', // Germany vs Paraguay  (D조 3위 → ABCDF 슬롯)
+  77:'swe', // France vs Sweden     (F조 3위 → CDFGH 슬롯)
+  79:'ecu', // Mexico vs Ecuador    (E조 3위 → CEFHI 슬롯)
+  80:'cod', // England vs Congo DR  (K조 3위 → EHIJK 슬롯)
+  81:'bih', // USA vs Bosnia        (B조 3위 → BEFIJ 슬롯)
+  82:'sen', // Belgium vs Senegal   (I조 3위 → AEHIJ 슬롯)
+  85:'alg', // Switzerland vs Algeria (J조 3위 → EFGIJ 슬롯)
+  87:'gha', // Colombia vs Ghana    (L조 3위 → DEIJL 슬롯)
+};
 const DOW = ["일","월","화","수","목","금","토"];
 
 const FEED_ITEMS = [
