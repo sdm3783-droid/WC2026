@@ -1105,7 +1105,7 @@ async function confirmBoost(koId,maxCoins,matchId){
     await saveBet(koId,myPred,amount,multiplier);
     closePredModal();
     showBoostConfirmToast(amount,multiplier);
-  }catch(e){alert('배팅 저장 실패. 다시 시도해주세요.');}
+  }catch(e){console.error('confirmBoost error:',e);alert('배팅 저장 실패. 다시 시도해주세요.');}
 }
 function showBoostConfirmToast(amount,multiplier){
   const el=document.createElement('div');

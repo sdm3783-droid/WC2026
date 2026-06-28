@@ -170,7 +170,7 @@ async function syncAllLocalPredsToRoom(){
     if(p.p2)upd[`grp-${g}-2`]=p.p2;
   });
   Object.entries(SCORE_PREDS).forEach(([k,v])=>{upd['s-'+k]=v;});
-  Object.entries(MY_BETS).forEach(([k,v])=>{upd['bet-'+k]=v;});
+  Object.entries(MY_BETS).forEach(([k,v])=>{upd['bet-'+k]=JSON.stringify(v);});
   if(Object.keys(upd).length){
     await getDb().collection('wc2026_rooms').doc(ROOM_CODE).collection('predictions').doc(ROOM_NICK)
       .set(upd,{merge:true}).catch(e=>console.warn('syncAllLocalPredsToRoom:',e));
@@ -336,7 +336,7 @@ function listenRoom(code){
       hydrateLocalPredsFromRoom(ROOM_PREDS[ROOM_NICK]);
       MY_BETS={};
       Object.entries(ROOM_PREDS[ROOM_NICK]).forEach(([k,v])=>{
-        if(k.startsWith('bet-'))MY_BETS[k.slice(4)]=v;
+        if(k.startsWith('bet-')){try{const bv=typeof v==='string'?JSON.parse(v):v;if(bv)MY_BETS[k.slice(4)]=bv;}catch(e){}}
       });
       saveBetsLocal();
     }
@@ -932,8 +932,10 @@ function calcBetPnl(nick){
   }else{
     const preds=ROOM_PREDS[nick]||{};
     Object.entries(preds).forEach(([k,v])=>{
-      if(!k.startsWith('bet-')||!v||!v.settled)return;
-      pnl+=v.pnl||0;
+      if(!k.startsWith('bet-'))return;
+      const bv=typeof v==='string'?JSON.parse(v):v;
+      if(!bv||!bv.settled)return;
+      pnl+=bv.pnl||0;
     });
   }
   return pnl;
@@ -978,7 +980,8 @@ async function saveBet(koId,val,amount,multiplier){
   playCoinJingle(Math.min(amount,4));
   popCoinEffect();
   const ref=getDb().collection('wc2026_rooms').doc(ROOM_CODE).collection('predictions').doc(ROOM_NICK);
-  await ref.set({[`bet-${koId}`]:MY_BETS[koId]},{merge:true});
+  await ref.set({[`bet-${koId}`]:JSON.stringify(MY_BETS[koId])},{merge:true})
+    .catch(e=>console.warn('saveBet sync failed:',e));
 }
 async function deleteBet(koId){
   if(!ROOM_CODE||!ROOM_NICK)return;
@@ -1000,7 +1003,7 @@ async function settleBets(){
     const hit=result===bet.val;
     const pnl=hit?bet.amount*bet.multiplier:-bet.amount;
     MY_BETS[koId]={...bet,settled:true,hit,pnl};
-    updates[`bet-${koId}`]=MY_BETS[koId];
+    updates[`bet-${koId}`]=JSON.stringify(MY_BETS[koId]);
     changed=true;
   });
   if(!changed)return;
