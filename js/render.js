@@ -1098,7 +1098,8 @@ async function confirmBoost(koId,maxCoins,matchId){
   const amount=parseInt(inp.value);
   const multiplier=_selectedMult();
   if(!amount||amount<1){alert('배팅 금액을 입력해주세요.');return;}
-  if(amount>maxCoins){alert(`보유 코인(${maxCoins})보다 많이 배팅할 수 없어요.`);return;}
+  const freshAvail=availableCoins();
+  if(amount>freshAvail){alert(`사용 가능 코인(${freshAvail})보다 많이 배팅할 수 없어요.`);return;}
   const myPred=PREDS[koId];
   if(!myPred){alert('먼저 팀을 예측해주세요.');return;}
   try{
@@ -1126,7 +1127,6 @@ function showMyBets(){
   const pc=pendingBets.reduce((s,[,b])=>s+b.amount,0);
   const av=Math.max(0,tc-pc);
   const potReturn=pendingBets.reduce((s,[,b])=>s+b.amount*b.multiplier,0);
-  const wonPnl=bets.filter(([,b])=>b.settled&&b.hit).reduce((s,[,b])=>s+(b.pnl||0),0);
   const betRows=bets.length===0?`<div class="bh-empty">아직 배팅한 경기가 없어요<br><span style="font-size:.72rem">경기 카드를 탭해서 배팅을 시작해보세요!</span></div>`:bets.map(([key,bet])=>{
     const ko=KO.find(k=>koKey(k)===key);
     if(!ko)return'';
@@ -1215,9 +1215,12 @@ function openKOPred(id){
     const avail=availableCoins();
     const _bets=boostBets(ko.r);
     const multBtns=`<div class="boost-slider"><div class="boost-slider-track"><div class="boost-slider-fill" id="boost-slider-fill" style="width:100%"></div><div class="boost-slider-steps">${_bets.map(b=>`<div class="boost-slider-step${b.mult===maxMult?' selected':''}" data-mult="${b.mult}" onclick="selectBoostMult(${b.mult})"><div class="boost-slider-dot"></div></div>`).join('')}</div></div><div class="boost-slider-labels">${_bets.map(b=>`<div class="boost-slider-step-info${b.mult===maxMult?' selected':''}" data-mult="${b.mult}"><div class="boost-slider-step-label">${b.label}</div><div class="boost-slider-step-x">×${b.mult}</div></div>`).join('')}</div></div>`;
+    const matchStartTime=koStartTime(ko);
+    const matchStarted=matchStartTime&&new Date()>=matchStartTime;
     if(existingBet&&!existingBet.settled){
       const betTeam=existingBet.val==='h'?hName:aName;
       const bm=existingBet.multiplier||maxMult;
+      const cancelBtn=matchStarted?`<div class="boost-hint" style="color:var(--red)">⏸ 경기 시작으로 취소 불가</div>`:`<button class="boost-cancel-btn" onclick="deleteBet('${ek}').then(()=>{renderBracket(R);openKOPred(${id})})">배팅 취소</button>`;
       boostHTML=`<div class="boost-section">
         <div class="boost-sec-title">⚡ BOOST 배팅 <span class="boost-badge boost-x${bm}">×${bm}</span></div>
         <div class="boost-current-row">
@@ -1225,7 +1228,12 @@ function openKOPred(id){
           <span class="boost-current-amount">${existingBet.amount}코인 배팅</span>
           <span class="boost-expected">적중 시 +${existingBet.amount*bm}🪙</span>
         </div>
-        <button class="boost-cancel-btn" onclick="deleteBet('${ek}').then(()=>{renderBracket(R);openKOPred(${id})})">배팅 취소</button>
+        ${cancelBtn}
+      </div>`;
+    }else if(matchStarted){
+      boostHTML=`<div class="boost-section boost-pending">
+        <div class="boost-sec-title">⚡ BOOST 배팅 마감</div>
+        <div class="boost-hint">경기가 시작되어 배팅이 마감되었습니다</div>
       </div>`;
     }else if(myPred){
       const _tc=calcPredScore().coins;

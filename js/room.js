@@ -336,7 +336,7 @@ function listenRoom(code){
       hydrateLocalPredsFromRoom(ROOM_PREDS[ROOM_NICK]);
       MY_BETS={};
       Object.entries(ROOM_PREDS[ROOM_NICK]).forEach(([k,v])=>{
-        if(k.startsWith('bet-')){try{const bv=typeof v==='string'?JSON.parse(v):v;if(bv)MY_BETS[k.slice(4)]=bv;}catch(e){}}
+        if(k.startsWith('bet-')){try{const bv=typeof v==='string'?JSON.parse(v):v;if(bv)MY_BETS[k.slice(4)]=bv;}catch(e){console.warn('listenRoom bet parse failed:',k,e);}}
       });
       saveBetsLocal();
     }
@@ -718,7 +718,7 @@ function koMatchResult(ko){if(!ko.score)return null;return ko.score[0]>ko.score[
 function koStartTime(ko){
   const m=ko.d.match(/^(\d+)\/(\d+)\s+(\d+):(\d+)$/);
   if(!m)return null;
-  return new Date(`2026-${String(m[1]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}T${m[3]}:${m[4]}`);
+  return new Date(`2026-${String(m[1]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}T${m[3]}:${m[4]}:00+09:00`);
 }
 function predictKO(key,val){
   if(VIEW_MODE)return;
@@ -933,9 +933,7 @@ function calcBetPnl(nick){
     const preds=ROOM_PREDS[nick]||{};
     Object.entries(preds).forEach(([k,v])=>{
       if(!k.startsWith('bet-'))return;
-      const bv=typeof v==='string'?JSON.parse(v):v;
-      if(!bv||!bv.settled)return;
-      pnl+=bv.pnl||0;
+      try{const bv=typeof v==='string'?JSON.parse(v):v;if(bv&&bv.settled)pnl+=bv.pnl||0;}catch(e){console.warn('calcBetPnl parse failed:',k,e);}
     });
   }
   return pnl;
