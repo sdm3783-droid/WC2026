@@ -1277,6 +1277,53 @@ footer{background:#050b13;border-color:var(--border);color:#687687;margin-top:28
 .grp-stat-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .4s ease}
 .grp-stat-fill.rank2{background:#94a3b8}
 .grp-stat-cnt{font-size:.68rem;font-weight:700;color:#e2e8f0;min-width:28px;text-align:right;white-space:nowrap}
+
+/* ── 코인 상태 바 (브라켓 상단) ── */
+.coin-status-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:linear-gradient(135deg,rgba(217,119,6,.1),rgba(0,0,0,.2));border:1px solid rgba(227,179,65,.28);border-radius:12px;margin-bottom:16px;flex-wrap:wrap}
+.csb-item{display:flex;flex-direction:column;align-items:center;flex:1;min-width:60px;gap:1px}
+.csb-label{font-size:.6rem;color:var(--dim);letter-spacing:.02em;white-space:nowrap}
+.csb-val{font-size:.92rem;font-weight:900}
+.csb-val.gold{color:#fbbf24}
+.csb-val.red{color:#f87171}
+.csb-val.green{color:#4ade80}
+.csb-divider{width:1px;height:30px;background:rgba(255,255,255,.1);flex:none}
+.csb-btn{margin-left:auto;flex:none;font-size:.7rem;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid rgba(227,179,65,.4);background:rgba(217,119,6,.15);color:#fbbf24;cursor:pointer;white-space:nowrap;transition:background .15s}
+.csb-btn:hover{background:rgba(217,119,6,.3)}
+
+/* ── 코인 분해 바 (배팅 모달 안) ── */
+.boost-coin-bar{display:flex;align-items:stretch;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.bcb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:7px 4px;gap:2px}
+.bcb-item+.bcb-item{border-left:1px solid rgba(255,255,255,.08)}
+.bcb-label{font-size:.58rem;color:var(--dim);letter-spacing:.02em;white-space:nowrap;text-align:center}
+.bcb-val{font-size:.85rem;font-weight:900;color:#e2e8f0}
+.bcb-val.gold{color:#fbbf24}
+.bcb-val.red{color:#f87171}
+.bcb-val.green{color:#4ade80}
+.bcb-avail{background:rgba(74,222,128,.05)}
+
+/* ── 내 배팅 내역 모달 ── */
+.my-bets-wrap{max-height:52vh;overflow-y:auto;padding:0 2px}
+.bh-empty{text-align:center;color:var(--dim);font-size:.82rem;padding:28px 0}
+.bh-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.bh-row:last-child{border-bottom:none}
+.bh-info{flex:1;min-width:0}
+.bh-match{font-size:.73rem;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bh-round{font-size:.6rem;color:var(--dim);margin:2px 0}
+.bh-team-pick{font-size:.7rem;color:#fbbf24;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.bh-amounts{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.bh-bet-chip{font-size:.68rem;padding:2px 7px;border-radius:5px;border:1px solid rgba(96,165,250,.35);background:rgba(96,165,250,.1);color:#93c5fd;font-weight:700;white-space:nowrap}
+.bh-expect{font-size:.64rem;color:#4ade80;white-space:nowrap}
+.bh-status-badge{font-size:.62rem;padding:2px 6px;border-radius:5px;font-weight:700;white-space:nowrap}
+.bh-status-pending{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+.bh-status-win{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.bh-status-lose{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.bh-footer{margin-top:14px;padding:12px 14px;background:rgba(0,0,0,.22);border-radius:10px;border:1px solid rgba(255,255,255,.08);display:flex;gap:8px;flex-wrap:wrap}
+.bh-foot-item{display:flex;flex-direction:column;gap:2px;flex:1;min-width:56px;align-items:center}
+.bh-foot-label{font-size:.6rem;color:var(--dim);text-align:center}
+.bh-foot-val{font-size:.9rem;font-weight:900;text-align:center}
+.bh-foot-val.gold{color:#fbbf24}
+.bh-foot-val.green{color:#4ade80}
+.bh-foot-val.red{color:#f87171}
 .grp-stat-pct{color:var(--dim);font-weight:400}
 
 /* ── 피드 ── */

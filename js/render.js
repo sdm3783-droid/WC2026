@@ -986,20 +986,20 @@ function renderBracket(R){
     }).join('');
     return`<div class="ko-round" style="margin-top:20px"><div class="ko-round-title">3·4위전</div><div class="ko-grid">${cards}</div></div>`;
   })();
+  const _coinBarHTML=(()=>{
+    if(!isBoostOpen()||!ROOM_CODE||!ROOM_NICK){
+      return !isBoostOpen()?`<div class="ko-coming-soon" style="margin-bottom:24px"><div class="ko-cs-icon">🏆</div><div class="ko-cs-title">토너먼트 부스트 배팅 오픈 예정!</div><div class="ko-cs-desc">32강부터 코인을 굴려 최대 X10 BOOST까지!</div><div class="ko-cs-leverage"><span>32강 <b><i>⚡X3 BOOST</i></b></span><span>16강 <b><i>⚡X5 BOOST</i></b></span><span>8강~ <b><i>⚡X10 BOOST</i></b></span></div><button class="bet-guide-btn" onclick="showBettingGuide()">📖 배팅 시스템 가이드 보기</button></div>`:'';
+    }
+    const tc=calcPredScore().coins;
+    const pc=Object.values(MY_BETS).filter(b=>b&&!b.settled).reduce((s,b)=>s+b.amount,0);
+    const av=Math.max(0,tc-pc);
+    const bc=Object.values(MY_BETS).filter(b=>b&&!b.settled).length;
+    return `<div class="coin-status-bar"><div class="csb-item"><span class="csb-label">총 적립</span><span class="csb-val gold">🪙 ${tc}</span></div><div class="csb-divider"></div><div class="csb-item"><span class="csb-label">배팅 중</span><span class="csb-val red">-${pc}</span></div><div class="csb-divider"></div><div class="csb-item"><span class="csb-label">사용 가능</span><span class="csb-val green">🪙 ${av}</span></div><button class="csb-btn" onclick="showMyBets()">📋 내 배팅 내역${bc>0?' · '+bc+'건':''}</button></div>`;
+  })();
   document.getElementById('bracket-wrap').innerHTML=`
   ${renderChampionPick()}
   <div class="ko-hint-bar">⚽ 카드를 탭하면 승자를 예측할 수 있어요 · 조별리그 확정 후 팀이 표시됩니다</div>
-  <div class="ko-coming-soon" style="margin-bottom:24px">
-    <div class="ko-cs-icon">🏆</div>
-    <div class="ko-cs-title">토너먼트 부스트 배팅 오픈 예정!</div>
-    <div class="ko-cs-desc">32강부터 코인을 굴려 최대 X10 BOOST까지!</div>
-    <div class="ko-cs-leverage">
-      <span>32강 <b><i>⚡X3 BOOST</i></b></span>
-      <span>16강 <b><i>⚡X5 BOOST</i></b></span>
-      <span>8강~ <b><i>⚡X10 BOOST</i></b></span>
-    </div>
-    <button class="bet-guide-btn" onclick="showBettingGuide()">📖 배팅 시스템 가이드 보기</button>
-  </div>
+  ${_coinBarHTML}
   <div class="br-outer">
     <div class="br-labels">
       <div class="br-lbl" style="flex:1.3">32강</div>
@@ -1115,6 +1115,73 @@ function showBoostConfirmToast(amount,multiplier){
   setTimeout(()=>el.remove(),3000);
 }
 
+/* ── 내 배팅 내역 모달 ── */
+function showMyBets(){
+  let modal=document.getElementById('my-bets-modal');
+  if(!modal){modal=document.createElement('div');modal.id='my-bets-modal';document.body.appendChild(modal);}
+  const bets=Object.entries(MY_BETS).filter(([,b])=>b)
+    .sort((a,b)=>{const ia=parseInt(a[0].replace('ko-',''));const ib=parseInt(b[0].replace('ko-',''));return ia-ib;});
+  const tc=calcPredScore().coins;
+  const pendingBets=bets.filter(([,b])=>!b.settled);
+  const pc=pendingBets.reduce((s,[,b])=>s+b.amount,0);
+  const av=Math.max(0,tc-pc);
+  const potReturn=pendingBets.reduce((s,[,b])=>s+b.amount*b.multiplier,0);
+  const wonPnl=bets.filter(([,b])=>b.settled&&b.hit).reduce((s,[,b])=>s+(b.pnl||0),0);
+  const betRows=bets.length===0?`<div class="bh-empty">아직 배팅한 경기가 없어요<br><span style="font-size:.72rem">경기 카드를 탭해서 배팅을 시작해보세요!</span></div>`:bets.map(([key,bet])=>{
+    const ko=KO.find(k=>koKey(k)===key);
+    if(!ko)return'';
+    const hv=resolveSlot(ko.home,R),av2=resolveSlot(ko.away,R);
+    const hName=typeof hv==='string'?TEAMS[hv].name:hv.label;
+    const aName=typeof av2==='string'?TEAMS[av2].name:av2.label;
+    const hEmo=typeof hv==='string'?TEAMS[hv].emo:'❓';
+    const aEmo=typeof av2==='string'?TEAMS[av2].emo:'❓';
+    const pickName=bet.val==='h'?hName:aName;
+    const pickEmo=bet.val==='h'?hEmo:aEmo;
+    let statusBadge='';
+    if(bet.settled){
+      statusBadge=bet.hit
+        ?`<span class="bh-status-badge bh-status-win">✓ 적중 +${bet.pnl}🪙</span>`
+        :`<span class="bh-status-badge bh-status-lose">✗ 실패 ${bet.pnl}🪙</span>`;
+    }else{
+      statusBadge=`<span class="bh-status-badge bh-status-pending">대기중</span>`;
+    }
+    return`<div class="bh-row">
+      <div class="bh-info">
+        <div class="bh-match">${hEmo} ${hName} vs ${aEmo} ${aName}</div>
+        <div class="bh-round">${ko.r} · M${ko.id} · ${ko.d}</div>
+        <div class="bh-team-pick">⚡ ${pickEmo} ${pickName} 승 ${statusBadge}</div>
+      </div>
+      <div class="bh-amounts">
+        <span class="bh-bet-chip">×${bet.multiplier} · ${bet.amount}🪙</span>
+        ${!bet.settled?`<span class="bh-expect">적중 시 +${bet.amount*bet.multiplier}🪙</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  modal.innerHTML=`
+    <div class="pred-modal-overlay" onclick="if(event.target===this)closeMyBets()">
+      <div class="pred-modal-box" style="max-width:460px;width:100%;max-height:85vh;overflow-y:auto">
+        <div class="pred-modal-handle"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-weight:900;font-size:1.05rem">⚡ 내 배팅 현황</div>
+          <button onclick="closeMyBets()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);color:#ccc;cursor:pointer;padding:4px 10px;border-radius:8px">✕</button>
+        </div>
+        <div class="my-bets-wrap">${betRows}</div>
+        ${bets.length>0?`<div class="bh-footer">
+          <div class="bh-foot-item"><span class="bh-foot-label">총 적립</span><span class="bh-foot-val gold">🪙 ${tc}</span></div>
+          <div class="bh-foot-item"><span class="bh-foot-label">배팅 중</span><span class="bh-foot-val red">-${pc}🪙</span></div>
+          <div class="bh-foot-item"><span class="bh-foot-label">사용 가능</span><span class="bh-foot-val green">🪙 ${av}</span></div>
+          <div class="bh-foot-item"><span class="bh-foot-label">전부 적중 시</span><span class="bh-foot-val green">+${potReturn}🪙</span></div>
+        </div>`:''}
+      </div>
+    </div>`;
+  modal.style.display='';
+  if(window.twemoji)twemoji.parse(modal);
+}
+function closeMyBets(){
+  const el=document.getElementById('my-bets-modal');
+  if(el)el.style.display='none';
+}
+
 function openKOPred(id){
   const ko=KO.find(k=>k.id===id);
   if(!ko||ko.score)return;
@@ -1161,9 +1228,15 @@ function openKOPred(id){
         <button class="boost-cancel-btn" onclick="deleteBet('${ek}').then(()=>{renderBracket(R);openKOPred(${id})})">배팅 취소</button>
       </div>`;
     }else if(myPred){
+      const _tc=calcPredScore().coins;
+      const _pc=Object.values(MY_BETS).filter(b=>b&&!b.settled).reduce((s,b)=>s+b.amount,0);
       boostHTML=`<div class="boost-section">
         <div class="boost-sec-title">⚡ BOOST 배팅 <span style="color:#94a3b8;font-size:.8rem">최대 ×${maxMult}</span></div>
-        <div class="boost-avail">보유 코인 🪙<b>${avail}</b></div>
+        <div class="boost-coin-bar">
+          <div class="bcb-item"><span class="bcb-label">총 적립</span><span class="bcb-val gold">🪙 ${_tc}</span></div>
+          <div class="bcb-item"><span class="bcb-label">배팅 중</span><span class="bcb-val red">-${_pc}</span></div>
+          <div class="bcb-item bcb-avail"><span class="bcb-label">이 경기 가능</span><span class="bcb-val green">🪙 ${avail}</span></div>
+        </div>
         ${multBtns}
         <div class="boost-input-row">
           <input type="number" id="boost-amount-inp" class="boost-amount-inp" min="1" max="${avail}" placeholder="배팅 금액" oninput="updateBoostPreview()">
