@@ -1,204 +1,49 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<base href="/">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2026 FIFA 월드컵 한국 가이드</title>
-<meta name="description" content="2026 FIFA 월드컵 한국인을 위한 정보 사이트. 전 경기 일정(한국시간)·중계 채널·대한민국 대표팀 정보를 한눈에.">
-<link rel="icon" href="icon.png" type="image/png">
-<link rel="apple-touch-icon" href="icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="WC2026 KOR">
-<meta name="theme-color" content="#07111f">
-<link rel="manifest" id="app-manifest" href="manifest.json?v=20260618-9">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="wc2026.css?v=20260618-9">
-<link rel="stylesheet" href="theme-2026.css?v=20260618-9">
-<link rel="stylesheet" href="theme-2026-bridge.css?v=20260618-9">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>WC2026 예측방 - 서비스 종료</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #0d1b2a;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  }
+  .wrap {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .card {
+    max-width: 420px;
+  }
+  .card .trophy { font-size: 48px; margin-bottom: 16px; }
+  .card h1 { font-size: 22px; margin: 0 0 12px; }
+  .card p { font-size: 15px; line-height: 1.6; color: #cbd5e1; margin: 0; }
+</style>
 </head>
 <body>
-
-<div class="sb-wrap">
-<aside class="sidebar">
-  <nav class="sb-nav">
-    <a href="#next-wrap" onclick="showPage('next-wrap');return false"><span class="nav-date-badge" id="nav-date-icon"></span><span id="nav-today-txt">오늘경기</span></a>
-    <a href="#korea" onclick="showPage('korea');return false"><span>🇰🇷</span>한국경기</a>
-    <a href="#room" onclick="showPage('room');return false"><span>👥</span>예측방<span class="sb-new">NEW</span></a>
-    <a href="#schedule" onclick="showPage('schedule');return false"><span>📋</span>전체일정</a>
-    <a href="#standings" onclick="showPage('standings');return false"><span>📊</span>순위</a>
-    <a href="#bracket" onclick="showPage('bracket');return false" class="nav-hit"><span>🏆</span>토너먼트<span class="sb-hit">Hit!</span></a>
-    <a href="#feed" onclick="showPage('feed');return false"><span>📰</span>피드<span class="sb-new">NEW</span></a>
-  </nav>
-  <div class="sb-bottom">
-    <div class="sb-logo">
-      <span class="sb-logo-icon">⚽</span>
-      <div>
-        <div class="sb-logo-title">WC2026</div>
-        <div class="sb-logo-sub">대한민국</div>
-      </div>
-    </div>
-    <div class="sb-status">
-      <span class="dot"></span><span id="hd-status">불러오는 중...</span>
-    </div>
-  </div>
-</aside>
-<div class="sb-content">
-
-<div class="hero" id="top">
-  <div class="hero-stadium-bg" aria-hidden="true">
-    <img class="stadium-svg" src="124444444.png" alt="">
-  </div>
-  <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-eyebrow">THE ROAD TO GLORY</div>
-      <h1>2026 FIFA<br><span>북중미 월드컵</span></h1>
-      <p>대한민국의 모든 경기와 104개 매치를 한눈에 확인하세요.</p>
-      <div class="hero-stats">
-        <div class="hero-stat"><strong>48개국</strong><span>역대 최대 참가국</span></div>
-        <div class="hero-stat"><strong>104경기</strong><span>전체 토너먼트</span></div>
-        <div class="hero-stat"><strong>KST</strong><span>한국시간 기준</span></div>
-      </div>
-    </div>
-    <div class="hero-right">
-      <div class="count-panel">
-        <div class="countdown-label" id="count-label">다음 한국전까지</div>
-        <div class="count-divider"><span></span><span></span></div>
-        <div id="countdown">--:--:--</div>
-        <div class="count-unit-row"><span>시간</span><span>분</span><span>초</span></div>
-      </div>
-    </div>
+<div class="wrap">
+  <div class="card">
+    <div class="trophy">🏆</div>
+    <h1>WC2026 예측방 서비스가 종료되었습니다</h1>
+    <p>월드컵이 마무리되면서 서비스를 종료했습니다.<br>그동안 함께해주셔서 감사합니다.</p>
   </div>
 </div>
-
-<div class="next-wrap" id="next-wrap">
-  <div class="next-section-label" id="next-label"></div>
-  <div id="next"></div>
-</div>
-
-<div class="section" id="korea" style="padding-top:36px">
-  <div class="sec-title">
-    <h2>🇰🇷 대한민국 경기</h2>
-    <button class="ics-btn" onclick="downloadICS()">📅 ICS 다운로드</button>
-  </div>
-  <div id="korea-list"></div>
-</div>
-
-<div class="section" id="room">
-  <div class="sec-title" style="flex-wrap:wrap;gap:10px 12px">
-    <h2>👥 예측 방</h2>
-    <div class="coffee-promo-badge">
-      <span class="coffee-promo-icon">☕</span>
-      <span class="coffee-promo-text">1등에게 <b>커피쿠폰</b> 쏩니다!</span>
-      <span class="coffee-promo-spark">✨</span>
-    </div>
-  </div>
-  <div id="room-panel"></div>
-</div>
-
-<div class="section" id="feed">
-  <div class="sec-title">
-    <h2>📰 피드</h2>
-    <span class="cnt">서비스 업데이트 · WC2026 소식</span>
-  </div>
-  <div id="feed-list"></div>
-</div>
-
-<div class="section" id="schedule">
-  <div class="sec-title">
-    <h2>전체 경기 일정</h2>
-  </div>
-  <div id="schedule-progress"></div>
-  <div id="view-banner" class="view-banner" style="display:none">👀 친구의 예측을 보는 중입니다 · 읽기 전용</div>
-  <div id="pred-panel" style="display:none"></div>
-  <div class="my-stats-bar"><div id="my-stats-panel" style="display:none"></div></div>
-  <div class="filter-tabs">
-    <button class="f-tab active" data-f="all" onclick="setFilter('all')">전체</button>
-    <button class="f-tab" data-f="kor" onclick="setFilter('kor')">🇰🇷 한국경기</button>
-    <button class="f-tab" data-f="today" onclick="setFilter('today')">오늘</button>
-    <button class="f-tab" data-f="tomorrow" onclick="setFilter('tomorrow')">내일</button>
-    <button class="f-tab cal-tab" onclick="openCalendar()">📅 날짜</button>
-  </div>
-  <div id="schedule-list"></div>
-  <div class="guide-grid" style="margin-top:24px">
-    <div class="g-card">
-      <h3><span class="b b-chzzk">치지직</span> 전 104경기</h3>
-      <p>네이버 아이디로 로그인 후 '월드컵 특별관' 시청. 한국전 무료.</p>
-    </div>
-    <div class="g-card">
-      <h3><span class="b b-kbs">KBS</span> 한국전·주요 경기</h3>
-      <p>1TV·2TV 동시 중계. KBS my K 앱에서도 무료 시청 가능.</p>
-    </div>
-    <div class="g-card">
-      <h3><span class="b b-jtbc">JTBC</span> 한국전·주요 경기</h3>
-      <p>IPTV 15번 채널. JTBC NOW 앱 무료 온에어 시청 가능.</p>
-    </div>
-  </div>
-</div>
-
-<div class="section" id="standings">
-  <div class="sec-title">
-    <h2>조별 순위표</h2>
-    <span class="cnt">A~L조 · 상위 2팀 32강 직행</span>
-  </div>
-  <div id="ai-challenge-wrap"></div>
-  <div class="grp-grid" id="standings-wrap"></div>
-</div>
-
-<div class="section" id="thirds">
-  <div class="sec-title">
-    <h2>조 3위 베스트 8</h2>
-    <span class="cnt">12개 조 3위 중 상위 8팀 32강</span>
-  </div>
-  <div id="thirds-wrap"></div>
-</div>
-
-<div class="section" id="bracket">
-  <div class="sec-title">
-    <h2>토너먼트 대진표</h2>
-    <span class="cnt">FIFA 공식 대진</span>
-  </div>
-  <div id="bracket-wrap"></div>
-</div>
-
-<footer>
-  <p>WC2026 KOREA 가이드 · 비공식 정보 사이트 · 점수 데이터: football-data.org</p>
-</footer>
-</div><!-- .sb-content -->
-</div><!-- .sb-wrap -->
-
-<div id="update-bar">
-  <span id="update-status">점수 불러오는 중...</span>
-  <button class="u-btn" onclick="fetchScores(true)">새로고침</button>
-</div>
-
-<!-- 예측 현황 모달 -->
-<div id="pred-modal" style="display:none"></div>
-<!-- 그룹 순위 모달 -->
-<div id="grp-modal" style="display:none"></div>
-<!-- 달력 모달 -->
-<div id="cal-modal" style="display:none"></div>
-<!-- 닉네임 예측 모달 -->
-<div id="nick-preds-modal" style="display:none"></div>
-<!-- 배팅 가이드 모달 -->
-<div id="bet-guide-modal" style="display:none"></div>
-<!-- 예측방 가이드 모달 -->
-<div id="room-guide-modal" style="display:none"></div>
-<!-- 신기능 공지 팝업 -->
-<div id="announce-popup" style="display:none"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/data.js?v=20260618-9"></script>
-<script src="js/state.js?v=20260618-9"></script>
-<script src="js/utils.js?v=20260618-9"></script>
-<script src="js/room.js?v=20260618-9"></script>
-<script src="js/render.js?v=20260618-9"></script>
-<script src="js/app.js?v=20260618-9"></script>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
+  }
+  if ('caches' in window) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+</script>
 </body>
 </html>
